@@ -1,0 +1,6 @@
+build/
+.gradle/
+.idea/
+zeratul.iml
+zeratul.ipr
+zeratul.iws
