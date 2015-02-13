@@ -1,6 +1,7 @@
 package com.thoughtworks.zeratul;
 
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.thoughtworks.zeratul.utils.ExpressionGenerator;
 import com.thoughtworks.zeratul.utils.FieldRestrictionGeneratorBuilder;
 import com.thoughtworks.zeratul.utils.OrderByGenerator;
@@ -98,12 +99,63 @@ public abstract class BaseDAO<T> {
         return resultList.get(0);
     }
 
+    protected Object queryFirstFieldsResult(List<String> selection, OrderByGenerator orderByGenerator, List<RestrictionGenerator> generators) {
+        return queryFirstFieldsResult(Object[].class, selection, orderByGenerator, Iterables.toArray(generators, RestrictionGenerator.class));
+    }
+
+    protected Object queryFirstFieldsResult(List<String> selection, OrderByGenerator orderByGenerator, RestrictionGenerator... generators) {
+        return queryFirstFieldsResult(Object[].class, selection, orderByGenerator, generators);
+    }
+
+    protected <F> F queryFirstFieldsResult(Class<F> wrapper, List<String> selection, OrderByGenerator orderByGenerator, List<RestrictionGenerator> generators) {
+        return queryFirstFieldsResult(wrapper, selection, orderByGenerator, Iterables.toArray(generators, RestrictionGenerator.class));
+    }
+
+    protected <F> F queryFirstFieldsResult(Class<F> wrapper, List<String> selection, OrderByGenerator orderByGenerator, RestrictionGenerator... generators) {
+        List<F> resultList = queryPageFieldsResult(1, 0, wrapper, selection, orderByGenerator, generators);
+
+        if (resultList.isEmpty()) {
+            return null;
+        }
+
+        return resultList.get(0);
+    }
+
     protected T querySingleResult(Iterable<RestrictionGenerator> generators) {
         return querySingleResult(Iterables.toArray(generators, RestrictionGenerator.class));
     }
 
     protected T querySingleResult(RestrictionGenerator... generators) {
         List<T> resultList = queryPageResult(2, 0, generators);
+
+        if (resultList.isEmpty()) {
+            return null;
+        }
+
+        if (resultList.size() > 1) {
+            String info = String.format("Find more than one entity of %s with generators: %s",
+                    prototype.getName(), Arrays.toString(generators));
+            log.warn(info);
+            throw new IllegalStateException(info);
+        }
+
+        return resultList.get(0);
+    }
+
+    protected Object[] querySingleFieldsResult(List<String> selections, Iterable<RestrictionGenerator> generators) {
+        return querySingleFieldsResult(selections, Iterables.toArray(generators, RestrictionGenerator.class));
+    }
+
+    protected <F> F querySingleFieldsResult(Class<F> wrapper, List<String> selections, Iterable<RestrictionGenerator> generators) {
+        return querySingleFieldsResult(wrapper, selections, Iterables.toArray(generators, RestrictionGenerator.class));
+    }
+
+    protected Object[] querySingleFieldsResult(List<String> selections, RestrictionGenerator... generators) {
+        return querySingleFieldsResult(Object[].class, selections, generators);
+    }
+
+    protected <F> F querySingleFieldsResult(Class<F> wrapper, List<String> selections, RestrictionGenerator... generators) {
+        List<F> resultList = queryPageFieldsResult(2, 0, wrapper, selections, generators);
 
         if (resultList.isEmpty()) {
             return null;
@@ -176,6 +228,54 @@ public abstract class BaseDAO<T> {
         return resultList;
     }
 
+    protected List queryListFieldsResult(List<String> selection, Iterable<RestrictionGenerator> generators) {
+        return queryListFieldsResult(selection, null, Iterables.toArray(generators, RestrictionGenerator.class));
+    }
+
+    protected List queryListFieldsResult(List<String> selection, RestrictionGenerator... generators) {
+        return queryListFieldsResult(selection, null, generators);
+    }
+
+    protected List queryListFieldsResult(List<String> selection, OrderByGenerator orderByGenerator, Iterable<RestrictionGenerator> generators) {
+        return queryListFieldsResult(selection, orderByGenerator, Iterables.toArray(generators, RestrictionGenerator.class));
+    }
+
+    protected List queryListFieldsResult(List<String> selection, OrderByGenerator orderByGenerator, RestrictionGenerator... generators) {
+        return queryListFieldsResult(Object[].class, selection, orderByGenerator, generators);
+    }
+
+    protected <F> List<F> queryListFieldsResult(Class<F> wrapper, List<String> selection, Iterable<RestrictionGenerator> generators) {
+        return queryListFieldsResult(wrapper, selection, null, Iterables.toArray(generators, RestrictionGenerator.class));
+    }
+
+    protected <F> List<F> queryListFieldsResult(Class<F> wrapper, List<String> selection, RestrictionGenerator... generators) {
+        return queryListFieldsResult(wrapper, selection, null, generators);
+    }
+
+    protected <F> List<F> queryListFieldsResult(Class<F> wrapper, List<String> selection, OrderByGenerator orderByGenerator, Iterable<RestrictionGenerator> generators) {
+        return queryListFieldsResult(wrapper, selection, orderByGenerator, Iterables.toArray(generators, RestrictionGenerator.class));
+    }
+
+    protected <F> List<F> queryListFieldsResult(Class<F> wrapper, List<String> selection, OrderByGenerator orderByGenerator, RestrictionGenerator... generators) {
+        CriteriaQuery criteria = createQuery();
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        appendOrderBy(criteriaBuilder, criteria, orderByGenerator);
+
+        generateSelect(criteria, criteriaBuilder, wrapper, selection);
+
+        Predicate[] generatedRestrictions = generateRestrictions(criteriaBuilder, criteria, generators);
+        criteria.where(generatedRestrictions);
+
+        List<F> resultList = entityManager.createQuery(criteria).getResultList();
+        if (resultList.isEmpty()) {
+            String info = String.format("Failed to find entity of %s with generators: %s",
+                    prototype.getName(), Arrays.toString(generators));
+            log.info(info);
+        }
+
+        return resultList;
+    }
+
     protected List<T> queryPageResult(int pageSize, int pageIndex, Iterable<RestrictionGenerator> generators) {
         return queryPageResult(pageSize, pageIndex, null, Iterables.toArray(generators, RestrictionGenerator.class));
     }
@@ -207,7 +307,69 @@ public abstract class BaseDAO<T> {
         return resultList;
     }
 
-    private void appendOrderBy(CriteriaBuilder criteriaBuilder, CriteriaQuery<T> criteria, OrderByGenerator orderByGenerator) {
+    protected List queryPageFieldsResult(int pageSize, int pageIndex, List<String> selection, Iterable<RestrictionGenerator> generators) {
+        return queryPageFieldsResult(pageSize, pageIndex, selection, null, Iterables.toArray(generators, RestrictionGenerator.class));
+    }
+
+    protected List queryPageFieldsResult(int pageSize, int pageIndex, List<String> selection, RestrictionGenerator... generators) {
+        return queryPageFieldsResult(pageSize, pageIndex, selection, null, generators);
+    }
+
+    protected List queryPageFieldsResult(int pageSize, int pageIndex, List<String> selection, OrderByGenerator orderByGenerator, Iterable<RestrictionGenerator> generators) {
+        return queryPageFieldsResult(pageSize, pageIndex, selection, orderByGenerator, Iterables.toArray(generators, RestrictionGenerator.class));
+    }
+
+    protected List queryPageFieldsResult(int pageSize, int pageIndex, List<String> selection, OrderByGenerator orderByGenerator, RestrictionGenerator... generators) {
+        return queryPageFieldsResult(pageSize, pageIndex, Object[].class, selection, orderByGenerator, generators);
+    }
+
+    protected <F> List<F> queryPageFieldsResult(int pageSize, int pageIndex, Class<F> wrapper, List<String> selection, Iterable<RestrictionGenerator> generators) {
+        return queryPageFieldsResult(pageSize, pageIndex, wrapper, selection, null, Iterables.toArray(generators, RestrictionGenerator.class));
+    }
+
+    protected <F> List<F> queryPageFieldsResult(int pageSize, int pageIndex, Class<F> wrapper, List<String> selection, RestrictionGenerator... generators) {
+        return queryPageFieldsResult(pageSize, pageIndex, wrapper, selection, null, generators);
+    }
+
+    protected <F> List<F> queryPageFieldsResult(int pageSize, int pageIndex, Class<F> wrapper, List<String> selection, OrderByGenerator orderByGenerator, Iterable<RestrictionGenerator> generators) {
+        return queryPageFieldsResult(pageSize, pageIndex, wrapper, selection, orderByGenerator, Iterables.toArray(generators, RestrictionGenerator.class));
+    }
+
+    protected <F> List<F> queryPageFieldsResult(int pageSize, int pageIndex, Class<F> wrapper, List<String> selection, OrderByGenerator orderByGenerator, RestrictionGenerator... generators) {
+        CriteriaQuery<F> criteria = createQuery(wrapper);
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        appendOrderBy(criteriaBuilder, criteria, orderByGenerator);
+
+        generateSelect(criteria, criteriaBuilder, wrapper, selection);
+
+        Predicate[] generatedRestrictions = generateRestrictions(criteriaBuilder, criteria, generators);
+
+        criteria.where(generatedRestrictions);
+        List resultList = doQueryWithPage(criteria, pageSize, pageIndex);
+
+        if (resultList.isEmpty()) {
+            String info = String.format("Failed to find entity of %s, of page (%d, %d), with generators (%s)",
+                    prototype.getName(), pageSize, pageIndex, Arrays.toString(generators));
+            log.info(info);
+        }
+
+        return resultList;
+    }
+
+    private <F> void generateSelect(CriteriaQuery criteria, CriteriaBuilder criteriaBuilder, Class<F> wrapper, List<String> selection) {
+        Root root = getRoot(criteria);
+        List<Path> paths = Lists.newArrayList();
+        for (String fieldName : selection) {
+            paths.add(root.get(fieldName));
+        }
+        if (wrapper.isArray()) {
+            criteria.multiselect(paths);
+        } else {
+            criteria.select(criteriaBuilder.construct(wrapper, Iterables.toArray(paths, Path.class)));
+        }
+    }
+
+    private void appendOrderBy(CriteriaBuilder criteriaBuilder, CriteriaQuery criteria, OrderByGenerator orderByGenerator) {
         if (orderByGenerator != null) {
             List<Order> orders = orderByGenerator.generate(criteriaBuilder, criteria);
             if (orders != null && !orders.isEmpty()) {
@@ -216,7 +378,7 @@ public abstract class BaseDAO<T> {
         }
     }
 
-    private List<T> doQueryWithPage(CriteriaQuery<T> criteria, int pageSize, int pageIndex) {
+    private <F> List<F> doQueryWithPage(CriteriaQuery<F> criteria, int pageSize, int pageIndex) {
         return entityManager.createQuery(criteria)
                 .setMaxResults(pageSize)
                 .setFirstResult(pageIndex * pageSize)
@@ -253,6 +415,10 @@ public abstract class BaseDAO<T> {
 
     protected FieldRestrictionGeneratorBuilder field(String fieldName) {
         return new FieldRestrictionGeneratorBuilder(prototype, fieldName);
+    }
+
+    protected List<String> filter(String... fieldNames) {
+        return Lists.newArrayList(fieldNames);
     }
 
     protected OrderByGenerator asc(String... fieldNames) {
