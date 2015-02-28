@@ -257,7 +257,7 @@ public abstract class BaseDAO<T> {
     }
 
     protected <F> List<F> queryListFieldsResult(Class<F> wrapper, List<String> selection, OrderByGenerator orderByGenerator, RestrictionGenerator... generators) {
-        CriteriaQuery criteria = createQuery();
+        CriteriaQuery criteria = createQuery(wrapper);
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         appendOrderBy(criteriaBuilder, criteria, orderByGenerator);
 
