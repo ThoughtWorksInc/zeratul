@@ -1,4 +1,4 @@
-package com.thoughtworks.zeratul.generator;
+package com.thoughtworks.zeratul.generator.orderby;
 
 import com.google.common.collect.Lists;
 import com.thoughtworks.zeratul.utils.OrderByGenerator;

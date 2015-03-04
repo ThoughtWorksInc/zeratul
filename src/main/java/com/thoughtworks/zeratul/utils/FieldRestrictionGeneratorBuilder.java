@@ -1,6 +1,6 @@
 package com.thoughtworks.zeratul.utils;
 
-import com.thoughtworks.zeratul.generator.*;
+import com.thoughtworks.zeratul.generator.restriction.*;
 import org.apache.log4j.Logger;
 
 import java.util.Date;

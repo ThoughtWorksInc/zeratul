@@ -1,6 +1,7 @@
-package com.thoughtworks.zeratul.generator;
+package com.thoughtworks.zeratul.generator.restriction;
 
 import com.google.common.collect.Lists;
+import com.thoughtworks.zeratul.generator.restriction.ComplexRestrictionGeneratorBase;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;

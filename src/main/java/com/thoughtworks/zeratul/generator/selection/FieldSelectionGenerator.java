@@ -1,4 +1,4 @@
-package com.thoughtworks.zeratul.generator;
+package com.thoughtworks.zeratul.generator.selection;
 
 import com.thoughtworks.zeratul.utils.SelectionGenerator;
 

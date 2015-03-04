@@ -1,4 +1,4 @@
-package com.thoughtworks.zeratul.generator;
+package com.thoughtworks.zeratul.generator.restriction;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;

@@ -1,4 +1,4 @@
-package com.thoughtworks.zeratul.generator;
+package com.thoughtworks.zeratul.generator.orderby;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
@@ -10,10 +10,10 @@ import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Root;
 import java.util.List;
 
-public class AscendOrderByGenerator implements OrderByGenerator {
+public class DescendOrderByGenerator implements OrderByGenerator {
     private final String[] fieldNames;
 
-    public AscendOrderByGenerator(String... fieldNames) {
+    public DescendOrderByGenerator(String... fieldNames) {
         this.fieldNames = fieldNames;
     }
 
@@ -24,7 +24,7 @@ public class AscendOrderByGenerator implements OrderByGenerator {
         return Lists.transform(fieldNameList, new Function<String, Order>() {
             @Override
             public Order apply(String fieldName) {
-                return criteriaBuilder.asc(entity.get(fieldName));
+                return criteriaBuilder.desc(entity.get(fieldName));
             }
         });
     }

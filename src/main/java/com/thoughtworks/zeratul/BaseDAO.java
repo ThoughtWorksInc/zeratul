@@ -2,6 +2,13 @@ package com.thoughtworks.zeratul;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.thoughtworks.zeratul.generator.orderby.AscendOrderByGenerator;
+import com.thoughtworks.zeratul.generator.orderby.DescendOrderByGenerator;
+import com.thoughtworks.zeratul.generator.orderby.DistanceOrderByGenerator;
+import com.thoughtworks.zeratul.generator.orderby.MixedOrderByGenerator;
+import com.thoughtworks.zeratul.generator.restriction.AndRestrictionGenerator;
+import com.thoughtworks.zeratul.generator.restriction.OrRestrictionGenerator;
+import com.thoughtworks.zeratul.generator.selection.*;
 import com.thoughtworks.zeratul.utils.*;
 import com.thoughtworks.zeratul.generator.*;
 import com.thoughtworks.zeratul.geography.Location;

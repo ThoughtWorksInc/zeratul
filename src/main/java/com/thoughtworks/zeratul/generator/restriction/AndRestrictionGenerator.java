@@ -1,4 +1,4 @@
-package com.thoughtworks.zeratul.generator;
+package com.thoughtworks.zeratul.generator.restriction;
 
 import com.google.common.collect.Lists;
 import com.thoughtworks.zeratul.utils.QueryUtils;

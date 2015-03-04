@@ -1,4 +1,4 @@
-package com.thoughtworks.zeratul.generator;
+package com.thoughtworks.zeratul.generator.selection;
 
 import com.thoughtworks.zeratul.utils.SelectionGenerator;
 
@@ -6,14 +6,13 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Root;
 
-public class MinSelectionGenerator extends SelectionGenerator {
-
-    public MinSelectionGenerator(String fieldName) {
+public class AbsSelectionGenerator extends SelectionGenerator {
+    public AbsSelectionGenerator(String fieldName) {
         super(fieldName);
     }
 
     @Override
     public Expression generate(Root root, CriteriaBuilder criteriaBuilder) {
-        return criteriaBuilder.min(root.get(getFieldName()));
+        return criteriaBuilder.abs(root.get(getFieldName()));
     }
 }
