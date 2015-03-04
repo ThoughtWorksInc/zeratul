@@ -18,7 +18,7 @@ public class Classmate extends BaseModel {
     private String description;
     
     @Enumerated(EnumType.STRING)
-    @Column(name = "gender", length = 12)
+    @Column(name = "gender", length = 12, nullable = false)
     private gender;
     
     @Column(name = "mobile", length = 16)
@@ -26,6 +26,9 @@ public class Classmate extends BaseModel {
     
     @Column(name = "birthday")
     private Date birthday;
+    
+    @Column(name = "gpa")
+    private Double gpa;
     
     ...
 }
@@ -82,8 +85,21 @@ public List<Classmate> listClassmateByName(String name, int pageSize, int pageIn
 * query fields
 
 ```
-public String getClassmateNameBirthdayAboveTime(Date startTime) {
-    return (String)querySingleResult(filter("name"), field("birthday").ge(startTime));
+public String getClassmateNameByBirthdayAboveTime(Date startTime) {
+    return (String)querySingleResult(filter(value("name")), field("birthday").ge(startTime));
 }
 ```
+* advance query fields
+
+```
+public String getMaxGPA(Date startTime) {
+    return (String)querySingleResult(filter(max("gpa")), field("birthday").ge(startTime));
+}
+```
+* subquery 
+
+```
+queryListResult(field("mobile").in(subquery(People.class, "telephone", field("address").eq("china"))));
+```
+
 ...
