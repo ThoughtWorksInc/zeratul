@@ -1,6 +1,6 @@
 #Zeratul
 
-a wrapper for hibernate entitymanager
+a wrapper for JPA
 
 ##Usage
 
