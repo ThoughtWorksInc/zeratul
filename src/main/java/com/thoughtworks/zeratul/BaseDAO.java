@@ -158,7 +158,7 @@ public abstract class BaseDAO<T> {
         return resultList.get(0);
     }
 
-    protected Object[] querySingleFieldsResult(List<SelectionGenerator> selections, Iterable<RestrictionGenerator> generators) {
+    protected Object querySingleFieldsResult(List<SelectionGenerator> selections, Iterable<RestrictionGenerator> generators) {
         return querySingleFieldsResult(selections, Iterables.toArray(generators, RestrictionGenerator.class));
     }
 
@@ -166,7 +166,7 @@ public abstract class BaseDAO<T> {
         return querySingleFieldsResult(wrapper, selections, Iterables.toArray(generators, RestrictionGenerator.class));
     }
 
-    protected Object[] querySingleFieldsResult(List<SelectionGenerator> selections, RestrictionGenerator... generators) {
+    protected Object querySingleFieldsResult(List<SelectionGenerator> selections, RestrictionGenerator... generators) {
         return querySingleFieldsResult(Object[].class, selections, generators);
     }
 
