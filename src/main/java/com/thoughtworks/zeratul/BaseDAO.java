@@ -2,16 +2,14 @@ package com.thoughtworks.zeratul;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.thoughtworks.zeratul.generator.SubqueryExpressionGenerator;
 import com.thoughtworks.zeratul.generator.orderby.AscendOrderByGenerator;
 import com.thoughtworks.zeratul.generator.orderby.DescendOrderByGenerator;
-import com.thoughtworks.zeratul.generator.orderby.DistanceOrderByGenerator;
 import com.thoughtworks.zeratul.generator.orderby.MixedOrderByGenerator;
 import com.thoughtworks.zeratul.generator.restriction.AndRestrictionGenerator;
 import com.thoughtworks.zeratul.generator.restriction.OrRestrictionGenerator;
 import com.thoughtworks.zeratul.generator.selection.*;
 import com.thoughtworks.zeratul.utils.*;
-import com.thoughtworks.zeratul.generator.*;
-import com.thoughtworks.zeratul.geography.Location;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 
@@ -73,6 +71,10 @@ public abstract class BaseDAO<T> {
         return entityManager.createQuery(criteriaQuery).getSingleResult();
     }
 
+    protected Long distinctCount(Iterable<RestrictionGenerator> generators) {
+        return distinctCount(Iterables.toArray(generators, RestrictionGenerator.class));
+    }
+
     protected Long distinctCount(RestrictionGenerator... generators) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> criteriaQuery = createQuery(Long.class);
@@ -115,19 +117,19 @@ public abstract class BaseDAO<T> {
         return resultList.get(0);
     }
 
-    protected Object queryFirstFieldsResult(List<SelectionGenerator> selection, OrderByGenerator orderByGenerator, List<RestrictionGenerator> generators) {
+    protected Object queryFirstFieldsResult(Selections selection, OrderByGenerator orderByGenerator, List<RestrictionGenerator> generators) {
         return queryFirstFieldsResult(Object[].class, selection, orderByGenerator, Iterables.toArray(generators, RestrictionGenerator.class));
     }
 
-    protected Object queryFirstFieldsResult(List<SelectionGenerator> selection, OrderByGenerator orderByGenerator, RestrictionGenerator... generators) {
+    protected Object queryFirstFieldsResult(Selections selection, OrderByGenerator orderByGenerator, RestrictionGenerator... generators) {
         return queryFirstFieldsResult(Object[].class, selection, orderByGenerator, generators);
     }
 
-    protected <F> F queryFirstFieldsResult(Class<F> wrapper, List<SelectionGenerator> selection, OrderByGenerator orderByGenerator, List<RestrictionGenerator> generators) {
+    protected <F> F queryFirstFieldsResult(Class<F> wrapper, Selections selection, OrderByGenerator orderByGenerator, List<RestrictionGenerator> generators) {
         return queryFirstFieldsResult(wrapper, selection, orderByGenerator, Iterables.toArray(generators, RestrictionGenerator.class));
     }
 
-    protected <F> F queryFirstFieldsResult(Class<F> wrapper, List<SelectionGenerator> selection, OrderByGenerator orderByGenerator, RestrictionGenerator... generators) {
+    protected <F> F queryFirstFieldsResult(Class<F> wrapper, Selections selection, OrderByGenerator orderByGenerator, RestrictionGenerator... generators) {
         List<F> resultList = queryPageFieldsResult(1, 0, wrapper, selection, orderByGenerator, generators);
 
         if (resultList.isEmpty()) {
@@ -158,19 +160,19 @@ public abstract class BaseDAO<T> {
         return resultList.get(0);
     }
 
-    protected Object querySingleFieldsResult(List<SelectionGenerator> selections, Iterable<RestrictionGenerator> generators) {
+    protected Object querySingleFieldsResult(Selections selections, Iterable<RestrictionGenerator> generators) {
         return querySingleFieldsResult(selections, Iterables.toArray(generators, RestrictionGenerator.class));
     }
 
-    protected <F> F querySingleFieldsResult(Class<F> wrapper, List<SelectionGenerator> selections, Iterable<RestrictionGenerator> generators) {
+    protected <F> F querySingleFieldsResult(Class<F> wrapper, Selections selections, Iterable<RestrictionGenerator> generators) {
         return querySingleFieldsResult(wrapper, selections, Iterables.toArray(generators, RestrictionGenerator.class));
     }
 
-    protected Object querySingleFieldsResult(List<SelectionGenerator> selections, RestrictionGenerator... generators) {
+    protected Object querySingleFieldsResult(Selections selections, RestrictionGenerator... generators) {
         return querySingleFieldsResult(Object[].class, selections, generators);
     }
 
-    protected <F> F querySingleFieldsResult(Class<F> wrapper, List<SelectionGenerator> selections, RestrictionGenerator... generators) {
+    protected <F> F querySingleFieldsResult(Class<F> wrapper, Selections selections, RestrictionGenerator... generators) {
         List<F> resultList = queryPageFieldsResult(2, 0, wrapper, selections, generators);
 
         if (resultList.isEmpty()) {
@@ -244,35 +246,35 @@ public abstract class BaseDAO<T> {
         return resultList;
     }
 
-    protected List queryListFieldsResult(List<SelectionGenerator> selection, Iterable<RestrictionGenerator> generators) {
+    protected List queryListFieldsResult(Selections selection, Iterable<RestrictionGenerator> generators) {
         return queryListFieldsResult(selection, null, Iterables.toArray(generators, RestrictionGenerator.class));
     }
 
-    protected List queryListFieldsResult(List<SelectionGenerator> selection, RestrictionGenerator... generators) {
+    protected List queryListFieldsResult(Selections selection, RestrictionGenerator... generators) {
         return queryListFieldsResult(selection, null, generators);
     }
 
-    protected List queryListFieldsResult(List<SelectionGenerator> selection, OrderByGenerator orderByGenerator, Iterable<RestrictionGenerator> generators) {
+    protected List queryListFieldsResult(Selections selection, OrderByGenerator orderByGenerator, Iterable<RestrictionGenerator> generators) {
         return queryListFieldsResult(selection, orderByGenerator, Iterables.toArray(generators, RestrictionGenerator.class));
     }
 
-    protected List queryListFieldsResult(List<SelectionGenerator> selection, OrderByGenerator orderByGenerator, RestrictionGenerator... generators) {
+    protected List queryListFieldsResult(Selections selection, OrderByGenerator orderByGenerator, RestrictionGenerator... generators) {
         return queryListFieldsResult(Object[].class, selection, orderByGenerator, generators);
     }
 
-    protected <F> List<F> queryListFieldsResult(Class<F> wrapper, List<SelectionGenerator> selection, Iterable<RestrictionGenerator> generators) {
+    protected <F> List<F> queryListFieldsResult(Class<F> wrapper, Selections selection, Iterable<RestrictionGenerator> generators) {
         return queryListFieldsResult(wrapper, selection, null, Iterables.toArray(generators, RestrictionGenerator.class));
     }
 
-    protected <F> List<F> queryListFieldsResult(Class<F> wrapper, List<SelectionGenerator> selection, RestrictionGenerator... generators) {
+    protected <F> List<F> queryListFieldsResult(Class<F> wrapper, Selections selection, RestrictionGenerator... generators) {
         return queryListFieldsResult(wrapper, selection, null, generators);
     }
 
-    protected <F> List<F> queryListFieldsResult(Class<F> wrapper, List<SelectionGenerator> selection, OrderByGenerator orderByGenerator, Iterable<RestrictionGenerator> generators) {
+    protected <F> List<F> queryListFieldsResult(Class<F> wrapper, Selections selection, OrderByGenerator orderByGenerator, Iterable<RestrictionGenerator> generators) {
         return queryListFieldsResult(wrapper, selection, orderByGenerator, Iterables.toArray(generators, RestrictionGenerator.class));
     }
 
-    protected <F> List<F> queryListFieldsResult(Class<F> wrapper, List<SelectionGenerator> selection, OrderByGenerator orderByGenerator, RestrictionGenerator... generators) {
+    protected <F> List<F> queryListFieldsResult(Class<F> wrapper, Selections selection, OrderByGenerator orderByGenerator, RestrictionGenerator... generators) {
         CriteriaQuery criteria = createQuery(wrapper);
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         appendOrderBy(criteriaBuilder, criteria, orderByGenerator);
@@ -323,35 +325,35 @@ public abstract class BaseDAO<T> {
         return resultList;
     }
 
-    protected List queryPageFieldsResult(int pageSize, int pageIndex, List<SelectionGenerator> selection, Iterable<RestrictionGenerator> generators) {
+    protected List queryPageFieldsResult(int pageSize, int pageIndex, Selections selection, Iterable<RestrictionGenerator> generators) {
         return queryPageFieldsResult(pageSize, pageIndex, selection, null, Iterables.toArray(generators, RestrictionGenerator.class));
     }
 
-    protected List queryPageFieldsResult(int pageSize, int pageIndex, List<SelectionGenerator> selection, RestrictionGenerator... generators) {
+    protected List queryPageFieldsResult(int pageSize, int pageIndex, Selections selection, RestrictionGenerator... generators) {
         return queryPageFieldsResult(pageSize, pageIndex, selection, null, generators);
     }
 
-    protected List queryPageFieldsResult(int pageSize, int pageIndex, List<SelectionGenerator> selection, OrderByGenerator orderByGenerator, Iterable<RestrictionGenerator> generators) {
+    protected List queryPageFieldsResult(int pageSize, int pageIndex, Selections selection, OrderByGenerator orderByGenerator, Iterable<RestrictionGenerator> generators) {
         return queryPageFieldsResult(pageSize, pageIndex, selection, orderByGenerator, Iterables.toArray(generators, RestrictionGenerator.class));
     }
 
-    protected List queryPageFieldsResult(int pageSize, int pageIndex, List<SelectionGenerator> selection, OrderByGenerator orderByGenerator, RestrictionGenerator... generators) {
+    protected List queryPageFieldsResult(int pageSize, int pageIndex, Selections selection, OrderByGenerator orderByGenerator, RestrictionGenerator... generators) {
         return queryPageFieldsResult(pageSize, pageIndex, Object[].class, selection, orderByGenerator, generators);
     }
 
-    protected <F> List<F> queryPageFieldsResult(int pageSize, int pageIndex, Class<F> wrapper, List<SelectionGenerator> selection, Iterable<RestrictionGenerator> generators) {
+    protected <F> List<F> queryPageFieldsResult(int pageSize, int pageIndex, Class<F> wrapper, Selections selection, Iterable<RestrictionGenerator> generators) {
         return queryPageFieldsResult(pageSize, pageIndex, wrapper, selection, null, Iterables.toArray(generators, RestrictionGenerator.class));
     }
 
-    protected <F> List<F> queryPageFieldsResult(int pageSize, int pageIndex, Class<F> wrapper, List<SelectionGenerator> selection, RestrictionGenerator... generators) {
+    protected <F> List<F> queryPageFieldsResult(int pageSize, int pageIndex, Class<F> wrapper, Selections selection, RestrictionGenerator... generators) {
         return queryPageFieldsResult(pageSize, pageIndex, wrapper, selection, null, generators);
     }
 
-    protected <F> List<F> queryPageFieldsResult(int pageSize, int pageIndex, Class<F> wrapper, List<SelectionGenerator> selection, OrderByGenerator orderByGenerator, Iterable<RestrictionGenerator> generators) {
+    protected <F> List<F> queryPageFieldsResult(int pageSize, int pageIndex, Class<F> wrapper, Selections selection, OrderByGenerator orderByGenerator, Iterable<RestrictionGenerator> generators) {
         return queryPageFieldsResult(pageSize, pageIndex, wrapper, selection, orderByGenerator, Iterables.toArray(generators, RestrictionGenerator.class));
     }
 
-    protected <F> List<F> queryPageFieldsResult(int pageSize, int pageIndex, Class<F> wrapper, List<SelectionGenerator> selection, OrderByGenerator orderByGenerator, RestrictionGenerator... generators) {
+    protected <F> List<F> queryPageFieldsResult(int pageSize, int pageIndex, Class<F> wrapper, Selections selection, OrderByGenerator orderByGenerator, RestrictionGenerator... generators) {
         CriteriaQuery<F> criteria = createQuery(wrapper);
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         appendOrderBy(criteriaBuilder, criteria, orderByGenerator);
@@ -372,10 +374,10 @@ public abstract class BaseDAO<T> {
         return resultList;
     }
 
-    private <F> void generateSelect(CriteriaQuery criteria, CriteriaBuilder criteriaBuilder, Class<F> wrapper, List<SelectionGenerator> selections) {
+    private <F> void generateSelect(CriteriaQuery criteria, CriteriaBuilder criteriaBuilder, Class<F> wrapper, Selections selections) {
         Root root = getRoot(criteria);
         List<Selection> paths = Lists.newArrayList();
-        for (SelectionGenerator selection : selections) {
+        for (SelectionGenerator selection : selections.getSelectionGenerators()) {
             paths.add(selection.generate(root, criteriaBuilder));
         }
         if (wrapper.isArray()) {
@@ -383,6 +385,7 @@ public abstract class BaseDAO<T> {
         } else {
             criteria.select(criteriaBuilder.construct(wrapper, Iterables.toArray(paths, Selection.class)));
         }
+        criteria.distinct(selections.isDistinct());
     }
 
     private void appendOrderBy(CriteriaBuilder criteriaBuilder, CriteriaQuery criteria, OrderByGenerator orderByGenerator) {
@@ -437,8 +440,12 @@ public abstract class BaseDAO<T> {
         return new FieldSelectionGenerator(fieldName);
     }
 
-    protected List<SelectionGenerator> filter(SelectionGenerator... selections) {
-        return Lists.newArrayList(selections);
+    protected Selections filter(SelectionGenerator... selections) {
+        return new Selections(false, Lists.newArrayList(selections));
+    }
+
+    protected Selections filter(boolean distinct, SelectionGenerator... selections) {
+        return new Selections(distinct, Lists.newArrayList(selections));
     }
 
     protected SelectionGenerator min(String fieldName) {
@@ -467,10 +474,6 @@ public abstract class BaseDAO<T> {
 
     protected OrderByGenerator mixed(OrderByGenerator... generators) {
         return new MixedOrderByGenerator(generators);
-    }
-
-    protected OrderByGenerator distance(Location location) {
-        return new DistanceOrderByGenerator(location);
     }
 
     protected ExpressionGenerator subquery(Class<?> fromType, String targetField, RestrictionGenerator... byRestrictions) {
