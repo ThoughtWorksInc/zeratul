@@ -54,8 +54,8 @@ public abstract class BaseDAO<T> {
         entityManager.remove(entity);
     }
 
-    public T getByUuid(String uuid) {
-        return querySingleResult(field("uuid").eq(uuid));
+    protected T getById(Long id) {
+        return querySingleResult(field("id").eq(id));
     }
 
     protected long count(Iterable<RestrictionGenerator> generators) {
