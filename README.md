@@ -30,6 +30,8 @@ public class Classmate extends BaseModel {
     @Column(name = "gpa")
     private Double gpa;
     
+    @Column(name = "grade")
+    private Integer grade;
     ...
 }
 ```
@@ -102,4 +104,9 @@ public String getMaxGPA(Date startTime) {
 queryListResult(field("mobile").in(subquery(People.class, "telephone", field("address").eq("china"))));
 ```
 
+* distinct fields
+
+```
+queryListResult(distinct(value("gpa"), value("grade")), field("address").eq("china"))
+```
 ...

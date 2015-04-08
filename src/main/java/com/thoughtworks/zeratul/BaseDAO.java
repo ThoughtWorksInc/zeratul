@@ -444,8 +444,24 @@ public abstract class BaseDAO<T> {
         return new Selections(false, Lists.newArrayList(selections));
     }
 
+    protected Selections filter(Iterable<SelectionGenerator> selections) {
+        return new Selections(false, Lists.newArrayList(selections));
+    }
+
     protected Selections filter(boolean distinct, SelectionGenerator... selections) {
         return new Selections(distinct, Lists.newArrayList(selections));
+    }
+
+    protected Selections filter(boolean distinct, Iterable<SelectionGenerator> selections) {
+        return new Selections(distinct, Lists.newArrayList(selections));
+    }
+
+    protected Selections distinct(SelectionGenerator... selections) {
+        return new Selections(true, Lists.newArrayList(selections));
+    }
+
+    protected Selections distinct(Iterable<SelectionGenerator> selections) {
+        return new Selections(true, Lists.newArrayList(selections));
     }
 
     protected SelectionGenerator min(String fieldName) {
