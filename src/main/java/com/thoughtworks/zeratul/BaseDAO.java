@@ -480,6 +480,10 @@ public abstract class BaseDAO<T> {
         return new AvgSelectionGenerator(fieldName);
     }
 
+    protected SelectionGenerator count(String fieldName) {
+        return new CountSelectionGenerator(fieldName);
+    }
+
     protected OrderByGenerator asc(String... fieldNames) {
         return new AscendOrderByGenerator(fieldNames);
     }
