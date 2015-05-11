@@ -472,6 +472,10 @@ public abstract class BaseDAO<T> {
         return new MaxSelectionGenerator(fieldName);
     }
 
+    protected SelectionGenerator sum(String fieldName) {
+        return new SumSelectionGenerator(fieldName);
+    }
+
     protected SelectionGenerator abs(String fieldName) {
         return new AbsSelectionGenerator(fieldName);
     }
