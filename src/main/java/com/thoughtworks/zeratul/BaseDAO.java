@@ -100,19 +100,35 @@ public abstract class BaseDAO<T> {
     }
 
     protected T queryFirstResult(List<RestrictionGenerator> generators) {
-        return queryFirstResult(null, Iterables.toArray(generators, RestrictionGenerator.class));
+        return queryFirstResult(null, null, Iterables.toArray(generators, RestrictionGenerator.class));
+    }
+
+    protected T queryFirstResult(GroupByGenerator groupByGenerator, List<RestrictionGenerator> generators) {
+        return queryFirstResult(null, groupByGenerator, Iterables.toArray(generators, RestrictionGenerator.class));
     }
 
     protected T queryFirstResult(RestrictionGenerator... generators) {
-        return queryFirstResult(null, generators);
+        return queryFirstResult(null, null, generators);
+    }
+
+    protected T queryFirstResult(GroupByGenerator groupByGenerator, RestrictionGenerator... generators) {
+        return queryFirstResult(null, groupByGenerator, generators);
     }
 
     protected T queryFirstResult(OrderByGenerator orderByGenerator, List<RestrictionGenerator> generators) {
         return queryFirstResult(orderByGenerator, Iterables.toArray(generators, RestrictionGenerator.class));
     }
 
+    protected T queryFirstResult(OrderByGenerator orderByGenerator, GroupByGenerator groupByGenerator, List<RestrictionGenerator> generators) {
+        return queryFirstResult(orderByGenerator, groupByGenerator, Iterables.toArray(generators, RestrictionGenerator.class));
+    }
+
     protected T queryFirstResult(OrderByGenerator orderByGenerator, RestrictionGenerator... generators) {
-        List<T> resultList = queryPageResult(1, 0, orderByGenerator, generators);
+        return queryFirstResult(orderByGenerator, null, generators);
+    }
+
+    protected T queryFirstResult(OrderByGenerator orderByGenerator, GroupByGenerator groupByGenerator, RestrictionGenerator... generators) {
+        List<T> resultList = queryPageResult(1, 0, orderByGenerator, groupByGenerator, generators);
 
         if (resultList.isEmpty()) {
             return null;
@@ -122,19 +138,31 @@ public abstract class BaseDAO<T> {
     }
 
     protected Object queryFirstFieldsResult(Selections selection, OrderByGenerator orderByGenerator, List<RestrictionGenerator> generators) {
-        return queryFirstFieldsResult(Object[].class, selection, orderByGenerator, Iterables.toArray(generators, RestrictionGenerator.class));
+        return queryFirstFieldsResult(Object[].class, selection, orderByGenerator, null, Iterables.toArray(generators, RestrictionGenerator.class));
+    }
+
+    protected Object queryFirstFieldsResult(Selections selection, OrderByGenerator orderByGenerator, GroupByGenerator groupByGenerator, List<RestrictionGenerator> generators) {
+        return queryFirstFieldsResult(Object[].class, selection, orderByGenerator, groupByGenerator, Iterables.toArray(generators, RestrictionGenerator.class));
     }
 
     protected Object queryFirstFieldsResult(Selections selection, OrderByGenerator orderByGenerator, RestrictionGenerator... generators) {
-        return queryFirstFieldsResult(Object[].class, selection, orderByGenerator, generators);
+        return queryFirstFieldsResult(Object[].class, selection, orderByGenerator, null, generators);
+    }
+
+    protected Object queryFirstFieldsResult(Selections selection, OrderByGenerator orderByGenerator, GroupByGenerator groupByGenerator, RestrictionGenerator... generators) {
+        return queryFirstFieldsResult(Object[].class, selection, orderByGenerator, groupByGenerator, generators);
     }
 
     protected <F> F queryFirstFieldsResult(Class<F> wrapper, Selections selection, OrderByGenerator orderByGenerator, List<RestrictionGenerator> generators) {
-        return queryFirstFieldsResult(wrapper, selection, orderByGenerator, Iterables.toArray(generators, RestrictionGenerator.class));
+        return queryFirstFieldsResult(wrapper, selection, orderByGenerator, null, Iterables.toArray(generators, RestrictionGenerator.class));
     }
 
-    protected <F> F queryFirstFieldsResult(Class<F> wrapper, Selections selection, OrderByGenerator orderByGenerator, RestrictionGenerator... generators) {
-        List<F> resultList = queryPageFieldsResult(1, 0, wrapper, selection, orderByGenerator, generators);
+    protected <F> F queryFirstFieldsResult(Class<F> wrapper, Selections selection, OrderByGenerator orderByGenerator, GroupByGenerator groupByGenerator, List<RestrictionGenerator> generators) {
+        return queryFirstFieldsResult(wrapper, selection, orderByGenerator, groupByGenerator, Iterables.toArray(generators, RestrictionGenerator.class));
+    }
+
+    protected <F> F queryFirstFieldsResult(Class<F> wrapper, Selections selection, OrderByGenerator orderByGenerator, GroupByGenerator groupByGenerator, RestrictionGenerator... generators) {
+        List<F> resultList = queryPageFieldsResult(1, 0, wrapper, selection, orderByGenerator, groupByGenerator, generators);
 
         if (resultList.isEmpty()) {
             return null;
@@ -220,25 +248,45 @@ public abstract class BaseDAO<T> {
         return resultList.get(0);
     }
 
+    protected List<T> queryListResult(GroupByGenerator groupByGenerator, Iterable<RestrictionGenerator> generators) {
+        return queryListResult(null, groupByGenerator, Iterables.toArray(generators, RestrictionGenerator.class));
+    }
+
     protected List<T> queryListResult(Iterable<RestrictionGenerator> generators) {
-        return queryListResult(null, Iterables.toArray(generators, RestrictionGenerator.class));
+        return queryListResult(null, null, Iterables.toArray(generators, RestrictionGenerator.class));
     }
 
     protected List<T> queryListResult(RestrictionGenerator... generators) {
-        return queryListResult(null, generators);
+        return queryListResult(null, null, generators);
+    }
+
+    protected List<T> queryListResult(GroupByGenerator groupByGenerator, RestrictionGenerator... generators) {
+        return queryListResult(null, groupByGenerator, generators);
     }
 
     protected List<T> queryListResult(OrderByGenerator orderByGenerator, Iterable<RestrictionGenerator> generators) {
         return queryListResult(orderByGenerator, Iterables.toArray(generators, RestrictionGenerator.class));
     }
 
+    protected List<T> queryListResult(OrderByGenerator orderByGenerator, GroupByGenerator groupByGenerator, Iterable<RestrictionGenerator> generators) {
+        return queryListResult(orderByGenerator, groupByGenerator, Iterables.toArray(generators, RestrictionGenerator.class));
+    }
+
     protected List<T> queryListResult(OrderByGenerator orderByGenerator, RestrictionGenerator... generators) {
+        return queryListResult(orderByGenerator, null, generators);
+    }
+
+    protected List<T> queryListResult(OrderByGenerator orderByGenerator, GroupByGenerator groupByGenerator, RestrictionGenerator... generators) {
         CriteriaQuery<T> criteria = createQueryCriteriaByAttributes();
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         appendOrderBy(criteriaBuilder, criteria, orderByGenerator);
 
         Predicate[] generatedRestrictions = generateRestrictions(criteriaBuilder, criteria, generators);
         criteria.where(generatedRestrictions);
+
+        if (groupByGenerator != null) {
+            criteria.groupBy(groupByGenerator.generate(getRoot(criteria)));
+        }
 
         List<T> resultList = entityManager.createQuery(criteria).getResultList();
         if (resultList.isEmpty()) {
@@ -251,34 +299,66 @@ public abstract class BaseDAO<T> {
     }
 
     protected List queryListFieldsResult(Selections selection, Iterable<RestrictionGenerator> generators) {
-        return queryListFieldsResult(selection, null, Iterables.toArray(generators, RestrictionGenerator.class));
+        return queryListFieldsResult(selection, null, null, Iterables.toArray(generators, RestrictionGenerator.class));
+    }
+
+    protected List queryListFieldsResult(Selections selection, GroupByGenerator groupByGenerator, Iterable<RestrictionGenerator> generators) {
+        return queryListFieldsResult(selection, null, groupByGenerator, Iterables.toArray(generators, RestrictionGenerator.class));
     }
 
     protected List queryListFieldsResult(Selections selection, RestrictionGenerator... generators) {
-        return queryListFieldsResult(selection, null, generators);
+        return queryListFieldsResult(selection, null, null, generators);
+    }
+
+    protected List queryListFieldsResult(Selections selection, GroupByGenerator groupByGenerator, RestrictionGenerator... generators) {
+        return queryListFieldsResult(selection, null, groupByGenerator, generators);
     }
 
     protected List queryListFieldsResult(Selections selection, OrderByGenerator orderByGenerator, Iterable<RestrictionGenerator> generators) {
         return queryListFieldsResult(selection, orderByGenerator, Iterables.toArray(generators, RestrictionGenerator.class));
     }
 
+    protected List queryListFieldsResult(Selections selection, OrderByGenerator orderByGenerator, GroupByGenerator groupByGenerator, Iterable<RestrictionGenerator> generators) {
+        return queryListFieldsResult(selection, orderByGenerator, groupByGenerator, Iterables.toArray(generators, RestrictionGenerator.class));
+    }
+
     protected List queryListFieldsResult(Selections selection, OrderByGenerator orderByGenerator, RestrictionGenerator... generators) {
-        return queryListFieldsResult(Object[].class, selection, orderByGenerator, generators);
+        return queryListFieldsResult(Object[].class, selection, orderByGenerator, null, generators);
+    }
+
+    protected List queryListFieldsResult(Selections selection, OrderByGenerator orderByGenerator, GroupByGenerator groupByGenerator, RestrictionGenerator... generators) {
+        return queryListFieldsResult(Object[].class, selection, orderByGenerator, groupByGenerator, generators);
     }
 
     protected <F> List<F> queryListFieldsResult(Class<F> wrapper, Selections selection, Iterable<RestrictionGenerator> generators) {
-        return queryListFieldsResult(wrapper, selection, null, Iterables.toArray(generators, RestrictionGenerator.class));
+        return queryListFieldsResult(wrapper, selection, null, null, Iterables.toArray(generators, RestrictionGenerator.class));
+    }
+
+    protected <F> List<F> queryListFieldsResult(Class<F> wrapper, Selections selection, GroupByGenerator groupByGenerator, Iterable<RestrictionGenerator> generators) {
+        return queryListFieldsResult(wrapper, selection, null, groupByGenerator, Iterables.toArray(generators, RestrictionGenerator.class));
     }
 
     protected <F> List<F> queryListFieldsResult(Class<F> wrapper, Selections selection, RestrictionGenerator... generators) {
-        return queryListFieldsResult(wrapper, selection, null, generators);
+        return queryListFieldsResult(wrapper, selection, null, null, generators);
+    }
+
+    protected <F> List<F> queryListFieldsResult(Class<F> wrapper, Selections selection, GroupByGenerator groupByGenerator, RestrictionGenerator... generators) {
+        return queryListFieldsResult(wrapper, selection, null, groupByGenerator, generators);
     }
 
     protected <F> List<F> queryListFieldsResult(Class<F> wrapper, Selections selection, OrderByGenerator orderByGenerator, Iterable<RestrictionGenerator> generators) {
         return queryListFieldsResult(wrapper, selection, orderByGenerator, Iterables.toArray(generators, RestrictionGenerator.class));
     }
 
+    protected <F> List<F> queryListFieldsResult(Class<F> wrapper, Selections selection, OrderByGenerator orderByGenerator, GroupByGenerator groupByGenerator, Iterable<RestrictionGenerator> generators) {
+        return queryListFieldsResult(wrapper, selection, orderByGenerator, groupByGenerator, Iterables.toArray(generators, RestrictionGenerator.class));
+    }
+
     protected <F> List<F> queryListFieldsResult(Class<F> wrapper, Selections selection, OrderByGenerator orderByGenerator, RestrictionGenerator... generators) {
+        return queryListFieldsResult(wrapper, selection, orderByGenerator, null, generators);
+    }
+
+    protected <F> List<F> queryListFieldsResult(Class<F> wrapper, Selections selection, OrderByGenerator orderByGenerator, GroupByGenerator groupByGenerator, RestrictionGenerator... generators) {
         CriteriaQuery criteria = createQuery(wrapper);
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         appendOrderBy(criteriaBuilder, criteria, orderByGenerator);
@@ -287,6 +367,10 @@ public abstract class BaseDAO<T> {
 
         Predicate[] generatedRestrictions = generateRestrictions(criteriaBuilder, criteria, generators);
         criteria.where(generatedRestrictions);
+
+        if (groupByGenerator != null) {
+            criteria.groupBy(groupByGenerator.generate(getRoot(criteria)));
+        }
 
         List<F> resultList = entityManager.createQuery(criteria).getResultList();
         if (resultList.isEmpty()) {
@@ -299,18 +383,34 @@ public abstract class BaseDAO<T> {
     }
 
     protected List<T> queryPageResult(int pageSize, int pageIndex, Iterable<RestrictionGenerator> generators) {
-        return queryPageResult(pageSize, pageIndex, null, Iterables.toArray(generators, RestrictionGenerator.class));
+        return queryPageResult(pageSize, pageIndex, null, null, Iterables.toArray(generators, RestrictionGenerator.class));
+    }
+
+    protected List<T> queryPageResult(int pageSize, int pageIndex, GroupByGenerator groupByGenerator, Iterable<RestrictionGenerator> generators) {
+        return queryPageResult(pageSize, pageIndex, null, groupByGenerator, Iterables.toArray(generators, RestrictionGenerator.class));
     }
 
     protected List<T> queryPageResult(int pageSize, int pageIndex, RestrictionGenerator... generators) {
-        return queryPageResult(pageSize, pageIndex, null, generators);
+        return queryPageResult(pageSize, pageIndex, null, null, generators);
+    }
+
+    protected List<T> queryPageResult(int pageSize, int pageIndex, GroupByGenerator groupByGenerator, RestrictionGenerator... generators) {
+        return queryPageResult(pageSize, pageIndex, null, groupByGenerator, generators);
     }
 
     protected List<T> queryPageResult(int pageSize, int pageIndex, OrderByGenerator orderByGenerator, Iterable<RestrictionGenerator> generators) {
-        return queryPageResult(pageSize, pageIndex, orderByGenerator, Iterables.toArray(generators, RestrictionGenerator.class));
+        return queryPageResult(pageSize, pageIndex, orderByGenerator, null, Iterables.toArray(generators, RestrictionGenerator.class));
+    }
+
+    protected List<T> queryPageResult(int pageSize, int pageIndex, OrderByGenerator orderByGenerator, GroupByGenerator groupByGenerator, Iterable<RestrictionGenerator> generators) {
+        return queryPageResult(pageSize, pageIndex, orderByGenerator, groupByGenerator, Iterables.toArray(generators, RestrictionGenerator.class));
     }
 
     protected List<T> queryPageResult(int pageSize, int pageIndex, OrderByGenerator orderByGenerator, RestrictionGenerator... generators) {
+        return queryPageResult(pageSize, pageIndex, orderByGenerator, null, generators);
+    }
+
+    protected List<T> queryPageResult(int pageSize, int pageIndex, OrderByGenerator orderByGenerator, GroupByGenerator groupByGenerator, RestrictionGenerator... generators) {
         CriteriaQuery<T> criteria = createQueryCriteriaByAttributes();
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         appendOrderBy(criteriaBuilder, criteria, orderByGenerator);
@@ -318,6 +418,11 @@ public abstract class BaseDAO<T> {
         Predicate[] generatedRestrictions = generateRestrictions(criteriaBuilder, criteria, generators);
 
         criteria.where(generatedRestrictions);
+
+        if (groupByGenerator != null) {
+            criteria.groupBy(groupByGenerator.generate(getRoot(criteria)));
+        }
+
         List<T> resultList = doQueryWithPage(criteria, pageSize, pageIndex);
 
         if (resultList.isEmpty()) {
@@ -330,34 +435,62 @@ public abstract class BaseDAO<T> {
     }
 
     protected List queryPageFieldsResult(int pageSize, int pageIndex, Selections selection, Iterable<RestrictionGenerator> generators) {
-        return queryPageFieldsResult(pageSize, pageIndex, selection, null, Iterables.toArray(generators, RestrictionGenerator.class));
+        return queryPageFieldsResult(pageSize, pageIndex, selection, null, null, Iterables.toArray(generators, RestrictionGenerator.class));
+    }
+
+    protected List queryPageFieldsResult(int pageSize, int pageIndex, Selections selection, GroupByGenerator groupByGenerator, Iterable<RestrictionGenerator> generators) {
+        return queryPageFieldsResult(pageSize, pageIndex, selection, null, groupByGenerator, Iterables.toArray(generators, RestrictionGenerator.class));
     }
 
     protected List queryPageFieldsResult(int pageSize, int pageIndex, Selections selection, RestrictionGenerator... generators) {
-        return queryPageFieldsResult(pageSize, pageIndex, selection, null, generators);
+        return queryPageFieldsResult(pageSize, pageIndex, selection, null, null, generators);
+    }
+
+    protected List queryPageFieldsResult(int pageSize, int pageIndex, Selections selection, GroupByGenerator groupByGenerator, RestrictionGenerator... generators) {
+        return queryPageFieldsResult(pageSize, pageIndex, selection, null, groupByGenerator, generators);
     }
 
     protected List queryPageFieldsResult(int pageSize, int pageIndex, Selections selection, OrderByGenerator orderByGenerator, Iterable<RestrictionGenerator> generators) {
         return queryPageFieldsResult(pageSize, pageIndex, selection, orderByGenerator, Iterables.toArray(generators, RestrictionGenerator.class));
     }
 
+    protected List queryPageFieldsResult(int pageSize, int pageIndex, Selections selection, OrderByGenerator orderByGenerator, GroupByGenerator groupByGenerator, Iterable<RestrictionGenerator> generators) {
+        return queryPageFieldsResult(pageSize, pageIndex, selection, orderByGenerator, groupByGenerator, Iterables.toArray(generators, RestrictionGenerator.class));
+    }
+
     protected List queryPageFieldsResult(int pageSize, int pageIndex, Selections selection, OrderByGenerator orderByGenerator, RestrictionGenerator... generators) {
-        return queryPageFieldsResult(pageSize, pageIndex, Object[].class, selection, orderByGenerator, generators);
+        return queryPageFieldsResult(pageSize, pageIndex, Object[].class, selection, orderByGenerator, null, generators);
+    }
+
+    protected List queryPageFieldsResult(int pageSize, int pageIndex, Selections selection, OrderByGenerator orderByGenerator, GroupByGenerator groupByGenerator, RestrictionGenerator... generators) {
+        return queryPageFieldsResult(pageSize, pageIndex, Object[].class, selection, orderByGenerator, groupByGenerator, generators);
     }
 
     protected <F> List<F> queryPageFieldsResult(int pageSize, int pageIndex, Class<F> wrapper, Selections selection, Iterable<RestrictionGenerator> generators) {
         return queryPageFieldsResult(pageSize, pageIndex, wrapper, selection, null, Iterables.toArray(generators, RestrictionGenerator.class));
     }
 
+    protected <F> List<F> queryPageFieldsResult(int pageSize, int pageIndex, Class<F> wrapper, Selections selection, GroupByGenerator groupByGenerator, Iterable<RestrictionGenerator> generators) {
+        return queryPageFieldsResult(pageSize, pageIndex, wrapper, selection, null, groupByGenerator, Iterables.toArray(generators, RestrictionGenerator.class));
+    }
+
     protected <F> List<F> queryPageFieldsResult(int pageSize, int pageIndex, Class<F> wrapper, Selections selection, RestrictionGenerator... generators) {
-        return queryPageFieldsResult(pageSize, pageIndex, wrapper, selection, null, generators);
+        return queryPageFieldsResult(pageSize, pageIndex, wrapper, selection, null, null, generators);
+    }
+
+    protected <F> List<F> queryPageFieldsResult(int pageSize, int pageIndex, Class<F> wrapper, Selections selection, GroupByGenerator groupByGenerator, RestrictionGenerator... generators) {
+        return queryPageFieldsResult(pageSize, pageIndex, wrapper, selection, null, groupByGenerator, generators);
     }
 
     protected <F> List<F> queryPageFieldsResult(int pageSize, int pageIndex, Class<F> wrapper, Selections selection, OrderByGenerator orderByGenerator, Iterable<RestrictionGenerator> generators) {
-        return queryPageFieldsResult(pageSize, pageIndex, wrapper, selection, orderByGenerator, Iterables.toArray(generators, RestrictionGenerator.class));
+        return queryPageFieldsResult(pageSize, pageIndex, wrapper, selection, orderByGenerator, null, Iterables.toArray(generators, RestrictionGenerator.class));
     }
 
-    protected <F> List<F> queryPageFieldsResult(int pageSize, int pageIndex, Class<F> wrapper, Selections selection, OrderByGenerator orderByGenerator, RestrictionGenerator... generators) {
+    protected <F> List<F> queryPageFieldsResult(int pageSize, int pageIndex, Class<F> wrapper, Selections selection, OrderByGenerator orderByGenerator, GroupByGenerator groupByGenerator,  Iterable<RestrictionGenerator> generators) {
+        return queryPageFieldsResult(pageSize, pageIndex, wrapper, selection, orderByGenerator, groupByGenerator, Iterables.toArray(generators, RestrictionGenerator.class));
+    }
+
+    protected <F> List<F> queryPageFieldsResult(int pageSize, int pageIndex, Class<F> wrapper, Selections selection, OrderByGenerator orderByGenerator, GroupByGenerator groupByGenerator, RestrictionGenerator... generators) {
         CriteriaQuery<F> criteria = createQuery(wrapper);
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         appendOrderBy(criteriaBuilder, criteria, orderByGenerator);
@@ -367,6 +500,10 @@ public abstract class BaseDAO<T> {
         Predicate[] generatedRestrictions = generateRestrictions(criteriaBuilder, criteria, generators);
 
         criteria.where(generatedRestrictions);
+
+        if (groupByGenerator != null) {
+            criteria.groupBy(groupByGenerator.generate(getRoot(criteria)));
+        }
         List resultList = doQueryWithPage(criteria, pageSize, pageIndex);
 
         if (resultList.isEmpty()) {
@@ -526,5 +663,9 @@ public abstract class BaseDAO<T> {
 
     protected RestrictionGenerator and(Iterable<RestrictionGenerator> generators) {
         return new AndRestrictionGenerator(Iterables.toArray(generators, RestrictionGenerator.class));
+    }
+
+    protected GroupByGenerator groupby(String... fieldNames) {
+        return new GroupByGenerator(fieldNames);
     }
 }
