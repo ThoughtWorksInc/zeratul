@@ -58,6 +58,10 @@ public abstract class BaseDAO<T> {
         return querySingleResult(field("id").eq(id));
     }
 
+    protected T getByIdLocked(Long id) {
+        return querySingleResultLocked(LockModeType.PESSIMISTIC_WRITE, field("id").eq(id));
+    }
+
     protected long count(Iterable<RestrictionGenerator> generators) {
         return count(Iterables.toArray(generators, RestrictionGenerator.class));
     }
