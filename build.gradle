@@ -5,8 +5,8 @@ apply plugin: 'java'
 version = '1.0'
 
 tasks.withType(JavaCompile) {
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
+    sourceCompatibility = 1.6
+    targetCompatibility = 1.6
     options.encoding = 'utf-8'
 }
 
@@ -16,8 +16,8 @@ repositories {
 
 idea {
     project {
-        languageLevel = '1.8'
-        jdkName = '1.8'
+        languageLevel = '1.6'
+        jdkName = '1.6'
 
         ipr {
             withXml { provider ->
@@ -45,6 +45,6 @@ dependencies {
             [group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.5'],
             [group: 'joda-time', name: 'joda-time', version: '2.2'],
             //Hibernate
-            [group: 'org.hibernate', name: 'hibernate-entitymanager', version: '4.3.0.Final']
+            [group: 'org.hibernate.javax.persistence', name: 'hibernate-jpa-2.1-api', version: '1.0.0.Final'],
     )
 }

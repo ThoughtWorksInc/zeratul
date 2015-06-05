@@ -1,6 +1,7 @@
 build/
 .gradle/
 .idea/
+out/
 zeratul.iml
 zeratul.ipr
 zeratul.iws
