@@ -1,14 +1,12 @@
 package com.thoughtworks.zeratul.generator.restriction;
 
-import com.google.common.collect.Lists;
-import com.thoughtworks.zeratul.generator.restriction.ComplexRestrictionGeneratorBase;
-
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.util.Date;
-import java.util.List;
 
 public class DateGteRestrictionGenerator extends ComplexRestrictionGeneratorBase<Date> {
     public DateGteRestrictionGenerator(String fieldName, Date date) {
@@ -18,6 +16,6 @@ public class DateGteRestrictionGenerator extends ComplexRestrictionGeneratorBase
     @Override
     protected List<Predicate> doGenerate(CriteriaBuilder criteriaBuilder, Root<?> entity, String field, Iterable<Expression<Date>> expressions) {
         Expression<Date> expression = expressions.iterator().next();
-        return Lists.newArrayList(criteriaBuilder.greaterThanOrEqualTo(entity.<Date>get(field), expression));
+        return Arrays.asList(criteriaBuilder.greaterThanOrEqualTo(entity.<Date>get(field), expression));
     }
 }

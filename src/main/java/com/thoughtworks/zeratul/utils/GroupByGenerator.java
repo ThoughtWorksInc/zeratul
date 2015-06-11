@@ -1,10 +1,9 @@
 package com.thoughtworks.zeratul.utils;
 
-import com.google.common.collect.Lists;
-
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Root;
-import java.util.List;
 
 public class GroupByGenerator {
     private String[] fieldNames;
@@ -14,7 +13,7 @@ public class GroupByGenerator {
     }
 
     public List<Expression<?>> generate(Root root) {
-        List<Expression<?>> groupByExpresses = Lists.newArrayList();
+        List<Expression<?>> groupByExpresses = new ArrayList();
         for (String fieldName : fieldNames) {
             groupByExpresses.add(root.get(fieldName));
         }

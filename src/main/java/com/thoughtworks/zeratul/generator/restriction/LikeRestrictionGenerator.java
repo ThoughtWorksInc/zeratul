@@ -1,13 +1,11 @@
 package com.thoughtworks.zeratul.generator.restriction;
 
-import com.google.common.collect.Lists;
-import com.thoughtworks.zeratul.generator.restriction.ComplexRestrictionGeneratorBase;
-
+import java.util.Arrays;
+import java.util.List;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.util.List;
 
 public class LikeRestrictionGenerator extends ComplexRestrictionGeneratorBase<String> {
     public LikeRestrictionGenerator(String field, String value) {
@@ -17,7 +15,7 @@ public class LikeRestrictionGenerator extends ComplexRestrictionGeneratorBase<St
     @Override
     protected List<Predicate> doGenerate(CriteriaBuilder criteriaBuilder, Root<?> entity, String field, Iterable<Expression<String>> values) {
         Expression<String> expression = values.iterator().next();
-        return Lists.newArrayList(criteriaBuilder.like(entity.<String>get(field), expression));
+        return Arrays.asList(criteriaBuilder.like(entity.<String>get(field), expression));
     }
 
     @Override

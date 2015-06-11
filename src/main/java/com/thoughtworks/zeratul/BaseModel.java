@@ -1,9 +1,10 @@
 package com.thoughtworks.zeratul;
 
-import org.joda.time.DateTime;
-
-import javax.persistence.*;
 import java.util.Date;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.MappedSuperclass;
 
 @MappedSuperclass
 public abstract class BaseModel {
@@ -11,12 +12,7 @@ public abstract class BaseModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "time_created", nullable = false, updatable = false)
     private Date timeCreated;
-
-    protected BaseModel() {
-        timeCreated = DateTime.now().toDate();
-    }
 
     public Long getId() {
         return id;

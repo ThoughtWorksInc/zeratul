@@ -1,12 +1,10 @@
 package com.thoughtworks.zeratul.utils;
 
-import java.util.List;
-
 public class Selections {
     private boolean distinct;
-    private List<SelectionGenerator> selectionGenerators;
+    private Iterable<SelectionGenerator> selectionGenerators;
 
-    public Selections(boolean distinct, List<SelectionGenerator> selectionGenerators) {
+    public Selections(boolean distinct, Iterable<SelectionGenerator> selectionGenerators) {
         this.distinct = distinct;
         this.selectionGenerators = selectionGenerators;
     }
@@ -19,11 +17,11 @@ public class Selections {
         this.distinct = distinct;
     }
 
-    public List<SelectionGenerator> getSelectionGenerators() {
+    public Iterable<SelectionGenerator> getSelectionGenerators() {
         return selectionGenerators;
     }
 
-    public void setSelectionGenerators(List<SelectionGenerator> selectionGenerators) {
+    public void setSelectionGenerators(Iterable<SelectionGenerator> selectionGenerators) {
         this.selectionGenerators = selectionGenerators;
     }
 }

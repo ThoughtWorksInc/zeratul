@@ -1,14 +1,11 @@
 package com.thoughtworks.zeratul.generator.restriction;
 
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.thoughtworks.zeratul.generator.restriction.ComplexRestrictionGeneratorBase;
-
+import java.util.Arrays;
+import java.util.List;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.util.List;
 
 public class InRestrictionGenerator extends ComplexRestrictionGeneratorBase<Object> {
     public InRestrictionGenerator(String field, Object... values) {
@@ -17,6 +14,6 @@ public class InRestrictionGenerator extends ComplexRestrictionGeneratorBase<Obje
 
     @Override
     protected List<Predicate> doGenerate(CriteriaBuilder criteriaBuilder, Root<?> entity, String field, Iterable<Expression<Object>> expressions) {
-        return Lists.newArrayList(entity.get(field).in(Iterables.toArray(expressions, Expression.class)));
+        return Arrays.asList(entity.get(field).in(expressions));
     }
 }

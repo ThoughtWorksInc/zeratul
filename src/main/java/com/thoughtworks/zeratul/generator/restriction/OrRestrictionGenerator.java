@@ -1,24 +1,24 @@
 package com.thoughtworks.zeratul.generator.restriction;
 
-import com.google.common.collect.Lists;
-import com.thoughtworks.zeratul.utils.QueryUtils;
-import com.thoughtworks.zeratul.utils.RestrictionGenerator;
-
+import java.util.Arrays;
+import java.util.List;
 import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
-import java.util.List;
+
+import com.thoughtworks.zeratul.utils.QueryUtils;
+import com.thoughtworks.zeratul.utils.RestrictionGenerator;
 
 public class OrRestrictionGenerator implements RestrictionGenerator {
-    private final RestrictionGenerator[] generators;
+    private final Iterable<RestrictionGenerator> generators;
 
-    public OrRestrictionGenerator(RestrictionGenerator... generators) {
+    public OrRestrictionGenerator(Iterable<RestrictionGenerator> generators) {
         this.generators = generators;
     }
 
     @Override
     public List<Predicate> generate(CriteriaBuilder criteriaBuilder, AbstractQuery<?> query) {
         Predicate[] restrictions = QueryUtils.generateRestrictions(criteriaBuilder, query, generators);
-        return Lists.newArrayList(criteriaBuilder.or(restrictions));
+        return Arrays.asList(criteriaBuilder.or(restrictions));
     }
 }

@@ -1,10 +1,10 @@
 package com.thoughtworks.zeratul.utils;
 
-import com.thoughtworks.zeratul.generator.restriction.*;
-import org.apache.log4j.Logger;
-
 import java.util.Date;
 import java.util.List;
+import org.apache.log4j.Logger;
+
+import com.thoughtworks.zeratul.generator.restriction.*;
 
 public class FieldRestrictionGeneratorBuilder {
     private static final Logger log = Logger.getLogger(FieldRestrictionGeneratorBuilder.class);

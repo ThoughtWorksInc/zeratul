@@ -1,13 +1,11 @@
 package com.thoughtworks.zeratul.generator.restriction;
 
-import com.google.common.collect.Lists;
-import com.thoughtworks.zeratul.generator.restriction.ComplexRestrictionGeneratorBase;
-
+import java.util.Arrays;
+import java.util.List;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.util.List;
 
 public class NotEqualRestrictionGenerator extends ComplexRestrictionGeneratorBase<Object> {
     public NotEqualRestrictionGenerator(String fieldName, Object value) {
@@ -23,7 +21,7 @@ public class NotEqualRestrictionGenerator extends ComplexRestrictionGeneratorBas
             restriction = criteriaBuilder.notEqual(entity.get(field), expression);
         }
 
-        return Lists.newArrayList(restriction);
+        return Arrays.asList(restriction);
     }
 
     @Override

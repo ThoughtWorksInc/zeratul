@@ -1,14 +1,12 @@
 package com.thoughtworks.zeratul.generator.restriction;
 
-import com.google.common.collect.Lists;
-import com.thoughtworks.zeratul.generator.restriction.ComplexRestrictionGeneratorBase;
-
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.util.Iterator;
-import java.util.List;
 
 public class DoubleBetweenRestrictionGenerator extends ComplexRestrictionGeneratorBase<Double> {
     public DoubleBetweenRestrictionGenerator(String field, Double number1, Double number2) {
@@ -20,6 +18,6 @@ public class DoubleBetweenRestrictionGenerator extends ComplexRestrictionGenerat
         Iterator<Expression<Double>> iterator = expressions.iterator();
         Expression<Double> expression1 = iterator.next();
         Expression<Double> expression2 = iterator.next();
-        return Lists.newArrayList(criteriaBuilder.between(entity.<Double>get(field), expression1, expression2));
+        return Arrays.asList(criteriaBuilder.between(entity.<Double>get(field), expression1, expression2));
     }
 }
