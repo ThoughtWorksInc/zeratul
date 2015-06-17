@@ -1,23 +1,5 @@
 package com.thoughtworks.zeratul;
 
-import static com.thoughtworks.zeratul.utils.QueryUtils.generateRestrictions;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import javax.persistence.EntityManager;
-import javax.persistence.LockModeType;
-import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Order;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Selection;
-import org.apache.log4j.Logger;
-
 import com.thoughtworks.zeratul.generator.SubqueryExpressionGenerator;
 import com.thoughtworks.zeratul.generator.orderby.AscendOrderByGenerator;
 import com.thoughtworks.zeratul.generator.orderby.DescendOrderByGenerator;
@@ -38,6 +20,24 @@ import com.thoughtworks.zeratul.utils.OrderByGenerator;
 import com.thoughtworks.zeratul.utils.RestrictionGenerator;
 import com.thoughtworks.zeratul.utils.SelectionGenerator;
 import com.thoughtworks.zeratul.utils.Selections;
+import org.apache.log4j.Logger;
+
+import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
+import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Selection;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+
+import static com.thoughtworks.zeratul.utils.QueryUtils.generateRestrictions;
 
 public abstract class BaseDAO<T> {
     private static final Logger log = Logger.getLogger(BaseDAO.class);
@@ -63,12 +63,12 @@ public abstract class BaseDAO<T> {
         entityManager.remove(entity);
     }
 
-    protected T getById(Long id) {
-        return querySingleResult(field("id").eq(id));
+    protected T getById(Object id) {
+        return entityManager.find(prototype, id);
     }
 
-    protected T getByIdLocked(Long id) {
-        return querySingleResultLocked(LockModeType.PESSIMISTIC_WRITE, field("id").eq(id));
+    protected T getByIdLocked(Long id, LockModeType lockModeType) {
+        return entityManager.find(prototype, id, lockModeType);
     }
 
     protected long count(Iterable<RestrictionGenerator> generators) {
@@ -137,13 +137,13 @@ public abstract class BaseDAO<T> {
     }
 
     protected T queryFirstResult(OrderByGenerator orderByGenerator, GroupByGenerator groupByGenerator, Iterable<RestrictionGenerator> generators) {
-    List<T> resultList = queryPageResult(1, 0, orderByGenerator, groupByGenerator, generators);
+        List<T> resultList = queryPageResult(1, 0, orderByGenerator, groupByGenerator, generators);
 
-    if (resultList.isEmpty()) {
-        return null;
-    }
+        if (resultList.isEmpty()) {
+            return null;
+        }
 
-    return resultList.get(0);
+        return resultList.get(0);
     }
 
     protected Object queryFirstFieldsResult(Selections selection, OrderByGenerator orderByGenerator, Iterable<RestrictionGenerator> generators) {
@@ -229,6 +229,7 @@ public abstract class BaseDAO<T> {
 
         return resultList.get(0);
     }
+
     protected T querySingleResultLocked(LockModeType lockModeType, RestrictionGenerator... generators) {
         return querySingleResultLocked(lockModeType, Arrays.asList(generators));
     }
@@ -498,7 +499,7 @@ public abstract class BaseDAO<T> {
         return queryPageFieldsResult(pageSize, pageIndex, wrapper, selection, orderByGenerator, null, generators);
     }
 
-    protected <F> List<F> queryPageFieldsResult(int pageSize, int pageIndex, Class<F> wrapper, Selections selection, OrderByGenerator orderByGenerator, GroupByGenerator groupByGenerator,  RestrictionGenerator... generators) {
+    protected <F> List<F> queryPageFieldsResult(int pageSize, int pageIndex, Class<F> wrapper, Selections selection, OrderByGenerator orderByGenerator, GroupByGenerator groupByGenerator, RestrictionGenerator... generators) {
         return queryPageFieldsResult(pageSize, pageIndex, wrapper, selection, orderByGenerator, groupByGenerator, generators);
     }
 
@@ -530,7 +531,7 @@ public abstract class BaseDAO<T> {
     private <F> void generateSelect(CriteriaQuery criteria, CriteriaBuilder criteriaBuilder, Class<F> wrapper, Selections selections) {
         Root root = getRoot(criteria);
         List<Selection> paths = new ArrayList();
-        selections.getSelectionGenerators().forEach( (selection) -> paths.add(selection.generate(root, criteriaBuilder)));
+        selections.getSelectionGenerators().forEach((selection) -> paths.add(selection.generate(root, criteriaBuilder)));
 
         if (wrapper.isArray()) {
             criteria.multiselect(paths);
