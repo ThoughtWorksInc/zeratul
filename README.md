@@ -10,7 +10,11 @@ a wrapper for JPA
 ```
 @Entity
 @Table(name = "my_model")
-public class Classmate extends BaseModel {
+public class Classmate {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     @Column(name = "name")
     private String name;
     
@@ -34,23 +38,6 @@ public class Classmate extends BaseModel {
     private Integer grade;
     ...
 }
-```
-BaseModel declaration `id` and `time_created`:
-
-```
-@MappedSuperclass
-public abstract class BaseModel {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(name = "time_created", nullable = false, updatable = false)
-    private Date timeCreated;
-
-    protected BaseModel() {
-        timeCreated = DateTime.now().toDate();
-    }
-```
 * extends BaseDAO when you create your DAO like:
 
 ```
