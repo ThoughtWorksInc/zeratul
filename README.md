@@ -38,6 +38,8 @@ public class Classmate {
     private Integer grade;
     ...
 }
+```
+
 * extends BaseDAO when you create your DAO like:
 
 ```
