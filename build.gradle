@@ -3,7 +3,7 @@ apply plugin: 'maven'
 apply plugin: 'java'
 apply plugin: 'signing'
 
-version = '1.02'
+version = '1.03'
 group = 'com.thoughtworks.zeratul'
 archivesBaseName = "zeratul"
 
@@ -63,6 +63,11 @@ uploadArchives {
                         id 'elvis-liu'
                         name 'Yufeng Liu'
                         email 'yfliu@thoughtworks.com'
+                    }
+                    developer {
+                        id 'yeyuexia'
+                        name 'Zhuo Liu'
+                        email 'zliu@thoughtworks.com'
                     }
                 }
             }
