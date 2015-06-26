@@ -1,10 +1,11 @@
 package com.thoughtworks.zeratul.utils;
 
-import java.util.Date;
-import java.util.List;
+import com.thoughtworks.zeratul.generator.restriction.*;
+
 import org.apache.log4j.Logger;
 
-import com.thoughtworks.zeratul.generator.restriction.*;
+import java.util.Date;
+import java.util.List;
 
 public class FieldRestrictionGeneratorBuilder {
     private static final Logger log = Logger.getLogger(FieldRestrictionGeneratorBuilder.class);
@@ -59,6 +60,14 @@ public class FieldRestrictionGeneratorBuilder {
         return new DoubleBetweenRestrictionGenerator(fieldName, number1, number2);
     }
 
+    public RestrictionGenerator between(Long number1, Long number2) {
+        return new LongBetweenRestrictionGenerator(fieldName, number1, number2);
+    }
+
+    public RestrictionGenerator between(Integer number1, Integer number2) {
+        return new IntegerBetweenRestrictionGenerator(fieldName, number1, number2);
+    }
+
     public RestrictionGenerator gt(Date date) {
         return new DateGtRestrictionGenerator(fieldName, date);
     }
@@ -75,29 +84,19 @@ public class FieldRestrictionGeneratorBuilder {
         return new DateGteRestrictionGenerator(fieldName, date);
     }
 
-    public RestrictionGenerator gt(Double number) {
-        return new DoubleGtRestrictionGenerator(fieldName, number);
+    public <T extends Number> RestrictionGenerator gt(T number) {
+        return new NumberGtRestrictionGenerator(fieldName, number);
     }
 
-    public RestrictionGenerator lt(Double number) {
-        return new DoubleLtRestrictionGenerator(fieldName, number);
+    public <T extends Number> RestrictionGenerator lt(T number) {
+        return new NumberLtRestrictionGenerator(fieldName, number);
     }
 
-    public RestrictionGenerator lte(Double number) {
-        return new DoubleLteRestrictionGenerator(fieldName, number);
+    public <T extends Number> RestrictionGenerator lte(T number) {
+        return new NumberLteRestrictionGenerator(fieldName, number);
     }
 
-    public RestrictionGenerator gte(Double number) {
-        return new DoubleGteRestrictionGenerator(fieldName, number);
+    public <T extends Number> RestrictionGenerator gte(T number) {
+        return new NumberGteRestrictionGenerator(fieldName, number);
     }
-
-    public RestrictionGenerator lt(Long number) {
-        return new LongLtRestrictionGenerator(fieldName, number);
-    }
-
-    public RestrictionGenerator gte(Long number) {
-        return new LongGteRestrictionGenerator(fieldName, number);
-    }
-
-
 }
