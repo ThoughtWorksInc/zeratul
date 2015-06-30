@@ -63,11 +63,11 @@ public abstract class BaseDAO<T> {
         entityManager.remove(entity);
     }
 
-    protected T getById(Object id) {
+    public T getById(Object id) {
         return entityManager.find(prototype, id);
     }
 
-    protected T getByIdLocked(Long id, LockModeType lockModeType) {
+    public T getByIdLocked(Long id, LockModeType lockModeType) {
         return entityManager.find(prototype, id, lockModeType);
     }
 
