@@ -570,7 +570,7 @@ public abstract class BaseDAO<T> {
                                                 OrderByGenerator orderByGenerator, GroupByGenerator groupByGenerator,
                                                 RestrictionGenerator... generators) {
         return queryPageFieldsResult(pageSize, pageIndex, wrapper, selection, orderByGenerator, groupByGenerator,
-                                     generators);
+                Arrays.asList(generators));
     }
 
     protected <F> List<F> queryPageFieldsResult(int pageSize, int pageIndex, Class<F> wrapper, Selections selection,
