@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.StreamSupport;
 
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
@@ -520,9 +519,8 @@ public abstract class BaseDAO<T> {
     protected List queryPageFieldsResult(int pageSize, int pageIndex, Selections selection,
                                          OrderByGenerator orderByGenerator, GroupByGenerator groupByGenerator,
                                          Iterable<RestrictionGenerator> generators) {
-        return queryPageFieldsResult(pageSize, pageIndex, selection, orderByGenerator, groupByGenerator,
-                                     StreamSupport.stream(generators.spliterator(), false).toArray(
-                                         size -> new RestrictionGenerator[size]));
+        return queryPageFieldsResult(pageSize, pageIndex, Object[].class, selection, orderByGenerator, groupByGenerator,
+                                     generators);
     }
 
     protected List queryPageFieldsResult(int pageSize, int pageIndex, Selections selection,
