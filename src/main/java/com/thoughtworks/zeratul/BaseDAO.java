@@ -35,6 +35,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
+import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Order;
@@ -755,5 +756,22 @@ public abstract class BaseDAO<T> {
 
     protected GroupByGenerator groupby(String... fieldNames) {
         return new GroupByGenerator(fieldNames);
+    }
+
+    private RestrictionGenerator nop() {
+        return new RestrictionGenerator() {
+            @Override
+            public List<Predicate> generate(CriteriaBuilder criteriaBuilder, AbstractQuery<?> query) {
+                return new ArrayList<>();
+            }
+        };
+    }
+
+    protected RestrictionGenerator queryIf(boolean condition, RestrictionGenerator generator) {
+        if (condition) {
+            return generator;
+        } else {
+            return nop();
+        }
     }
 }
